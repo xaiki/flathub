@@ -1,0 +1,60 @@
+{
+    "app-id": "app.ZBay.desktop",
+    "base": "org.electronjs.Electron2.BaseApp",
+    "base-version": "19.08",
+    "runtime": "org.freedesktop.Platform",
+    "runtime-version": "19.08",
+    "sdk": "org.freedesktop.Sdk",
+    "command": "zbay",
+    "separate-locales": false,
+    "rename-desktop-file": "zbay.desktop",
+    "rename-icon": "zbay",
+    "finish-args": [
+        "--share=ipc",
+        "--socket=x11",
+        "--socket=pulseaudio",
+        "--share=network",
+        "--device=dri",
+        "--filesystem=home",
+        "--talk-name=org.freedesktop.Notifications",
+        "--talk-name=org.kde.StatusNotifierWatcher",
+        "--own-name=org.kde.StatusNotifierItem-2-1"
+    ],
+    "modules": [
+        {
+            "name": "zbay",
+            "buildsystem": "simple",
+            "build-commands": [
+                "chmod +x Zbay*.AppImage",
+                "./Zbay*.AppImage --appimage-extract",
+                "mv squashfs-root/usr/share/icons/hicolor/0x0 squashfs-root/usr/share/icons/hicolor/128x128",
+                "cp -a squashfs-root/usr/* /app",
+                "rm -rf squashfs-root/usr",
+                "install -Dm644 squashfs-root/*.desktop /app/share/applications/zbay.desktop",
+                "install zbay.sh /app/bin/zbay",
+                "install -Dm644 app.ZBay.desktop.appdata.xml /app/share/appdata/app.ZBay.desktop.appdata.xml",
+                "mv squashfs-root /app/ZBay"
+            ],
+            "sources": [
+                {
+                    "type": "file",
+                    "only-arches": ["x86_64"],
+                    "url": "https://s3.amazonaws.com/release.zbay.app/Zbay-1.0.67-dev-linux-18-2.AppImage",
+                    "sha256": "f9c02ef4e723f088eb76aed6b9433727ac0eb509b59a88eecbf866161bc0e692"
+                },
+                {
+                    "type": "script",
+                    "dest-filename": "zbay.sh",
+                    "commands": [
+                        "export TMPDIR=\"$XDG_RUNTIME_DIR/app/$FLATPAK_ID\"",
+                        "exec zypak-wrapper /app/ZBay/zbay \"$@\""
+                    ]
+                },
+                {
+                    "type": "file",
+                    "path": "app.ZBay.desktop.appdata.xml"
+                }
+            ]
+        }
+    ]
+}
